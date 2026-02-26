@@ -13,7 +13,10 @@ const ROLE_OPTIONS = [
 
 const Register = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "citizen" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "citizen", department: "" });
+
+  const DEPARTMENTS = ["PWD", "Water Works", "Electricity Board", "Sanitation", "Drainage", "Other"];
+  const showDepartment = form.role === "contractor" || form.role === "official";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -126,6 +129,27 @@ const Register = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Department — only for contractor / official */}
+              {showDepartment && (
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--brand)" }}>Department</label>
+                  <select
+                    name="department"
+                    value={form.department}
+                    onChange={handleChange}
+                    className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all duration-150"
+                    style={inputStyle}
+                    onFocus={(e) => { e.target.style.borderColor = "var(--brand)"; }}
+                    onBlur={(e) => { e.target.style.borderColor = "var(--sand-dark)"; }}
+                  >
+                    <option value="">Select department…</option>
+                    {DEPARTMENTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="pt-1">
                 <Button type="submit" fullWidth loading={loading}>Create Account</Button>
