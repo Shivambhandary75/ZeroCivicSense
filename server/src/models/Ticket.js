@@ -48,6 +48,23 @@ const ticketSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    officialId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    contractorNote: {
+      type: String,
+      default: "",
+    },
+    votes: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    }],
+    voteCount: {
+      type: Number,
+      default: 0,
+    },
     resolvedAt: {
       type: Date,
       default: null,

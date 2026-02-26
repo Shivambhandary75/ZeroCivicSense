@@ -2,17 +2,21 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../services/authService";
 import Button from "../components/common/Button";
-import { MapIcon, UserIcon, BuildingIcon, HardHatIcon } from "../components/common/Icons";
+import { MapIcon, UserIcon, BuildingIcon, HardHatIcon, GavelIcon } from "../components/common/Icons";
 
 const ROLE_OPTIONS = [
-  { value: "citizen", label: "Citizen", Icon: UserIcon, desc: "Report issues in your area" },
-  { value: "contractor", label: "Contractor", Icon: HardHatIcon, desc: "Upload work proof" },
-  { value: "admin", label: "Admin / Authority", Icon: BuildingIcon, desc: "Manage & approve tickets" },
+  { value: "citizen",   label: "Citizen",        Icon: UserIcon,     desc: "Report issues in your area" },
+  { value: "official",  label: "Public Official", Icon: GavelIcon,    desc: "Endorse tickets & assign contractors" },
+  { value: "contractor", label: "Contractor",     Icon: HardHatIcon,  desc: "Upload work proof" },
+  { value: "admin",     label: "Admin",           Icon: BuildingIcon, desc: "Manage & approve tickets" },
 ];
 
 const Register = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "citizen" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "citizen", department: "" });
+
+  const DEPARTMENTS = ["PWD", "Water Works", "Electricity Board", "Sanitation", "Drainage", "Other"];
+  const showDepartment = form.role === "contractor" || form.role === "official";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -107,7 +111,7 @@ const Register = () => {
               {/* Role */}
               <div>
                 <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--brand)" }}>I am a...</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {ROLE_OPTIONS.map(({ value, label, Icon }) => (
                     <button
                       key={value}
@@ -125,6 +129,27 @@ const Register = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Department — only for contractor / official */}
+              {showDepartment && (
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--brand)" }}>Department</label>
+                  <select
+                    name="department"
+                    value={form.department}
+                    onChange={handleChange}
+                    className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all duration-150"
+                    style={inputStyle}
+                    onFocus={(e) => { e.target.style.borderColor = "var(--brand)"; }}
+                    onBlur={(e) => { e.target.style.borderColor = "var(--sand-dark)"; }}
+                  >
+                    <option value="">Select department…</option>
+                    {DEPARTMENTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="pt-1">
                 <Button type="submit" fullWidth loading={loading}>Create Account</Button>
