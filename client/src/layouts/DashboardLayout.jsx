@@ -1,33 +1,33 @@
 import React from "react";
 import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { MapIcon, LogOutIcon, ClipboardIcon, BuildingIcon, HardHatIcon, PlusIcon, UserIcon } from "../components/common/Icons";
+import { MapIcon, LogOutIcon, ClipboardIcon, BuildingIcon, HardHatIcon, PlusIcon, GavelIcon } from "../components/common/Icons";
 
 const NAV_ICONS = {
-  "/dashboard": <ClipboardIcon size={15} />,
+  "/dashboard":    <ClipboardIcon size={15} />,
   "/raise-ticket": <PlusIcon size={15} />,
-  "/dashboard/tickets": <ClipboardIcon size={15} />,
-  "/dashboard/users": <UserIcon size={15} />,
 };
 
 const ROLE_ICONS = {
-  citizen: <ClipboardIcon size={15} />,
-  admin: <BuildingIcon size={15} />,
+  citizen:    <ClipboardIcon size={15} />,
+  admin:      <BuildingIcon size={15} />,
   contractor: <HardHatIcon size={15} />,
+  official:   <GavelIcon size={15} />,
 };
 
 const NAV_LINKS = {
   citizen: [
-    { label: "My Tickets", to: "/dashboard" },
+    { label: "My Tickets",   to: "/dashboard" },
     { label: "Raise Ticket", to: "/raise-ticket" },
   ],
   admin: [
     { label: "Overview", to: "/dashboard" },
-    { label: "All Tickets", to: "/dashboard/tickets" },
-    { label: "Users", to: "/dashboard/users" },
   ],
   contractor: [
-    { label: "Assigned Work", to: "/dashboard" },
+    { label: "My Work", to: "/dashboard" },
+  ],
+  official: [
+    { label: "Tickets",      to: "/dashboard" },
   ],
 };
 

@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../services/authService";
 import Button from "../components/common/Button";
-import { MapIcon, UserIcon, BuildingIcon, HardHatIcon } from "../components/common/Icons";
+import { MapIcon, UserIcon, BuildingIcon, HardHatIcon, GavelIcon } from "../components/common/Icons";
 
 const ROLE_OPTIONS = [
-  { value: "citizen", label: "Citizen", Icon: UserIcon, desc: "Report issues in your area" },
-  { value: "contractor", label: "Contractor", Icon: HardHatIcon, desc: "Upload work proof" },
-  { value: "admin", label: "Admin / Authority", Icon: BuildingIcon, desc: "Manage & approve tickets" },
+  { value: "citizen",   label: "Citizen",        Icon: UserIcon,     desc: "Report issues in your area" },
+  { value: "official",  label: "Public Official", Icon: GavelIcon,    desc: "Endorse tickets & assign contractors" },
+  { value: "contractor", label: "Contractor",     Icon: HardHatIcon,  desc: "Upload work proof" },
+  { value: "admin",     label: "Admin",           Icon: BuildingIcon, desc: "Manage & approve tickets" },
 ];
 
 const Register = () => {
@@ -107,7 +108,7 @@ const Register = () => {
               {/* Role */}
               <div>
                 <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--brand)" }}>I am a...</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {ROLE_OPTIONS.map(({ value, label, Icon }) => (
                     <button
                       key={value}

@@ -15,6 +15,7 @@ import NotFound from "../pages/NotFound";
 import CitizenDashboard from "../components/dashboard/CitizenDashboard";
 import AdminDashboard from "../components/dashboard/AdminDashboard";
 import ContractorDashboard from "../components/dashboard/ContractorDashboard";
+import OfficialDashboard from "../components/dashboard/OfficialDashboard";
 import Loader from "../components/common/Loader";
 
 // ─── Protected Route ───────────────────────────────────────────
@@ -29,8 +30,9 @@ const ProtectedRoute = ({ children, roles }) => {
 // ─── Dashboard resolver ─────────────────────────────────────────
 const DashboardPage = () => {
   const { user } = useAuth();
-  if (user?.role === "admin") return <AdminDashboard />;
+  if (user?.role === "admin")      return <AdminDashboard />;
   if (user?.role === "contractor") return <ContractorDashboard />;
+  if (user?.role === "official")   return <OfficialDashboard />;
   return <CitizenDashboard />;
 };
 
@@ -73,11 +75,9 @@ const AppRoutes = () => (
     <Route
       path="/tickets/:id"
       element={
-        <ProtectedRoute>
-          <MainLayout>
-            <TicketView />
-          </MainLayout>
-        </ProtectedRoute>
+        <MainLayout>
+          <TicketView />
+        </MainLayout>
       }
     />
 

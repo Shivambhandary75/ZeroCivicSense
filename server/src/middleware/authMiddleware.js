@@ -33,4 +33,33 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+/**
+ * Optional auth — attaches req.user if a valid token is present,
+ * but lets the request through even if there is no token.
+ * Used for public routes that still show richer data to logged-in users.
+ */
+const optionalProtect = async (req, res, next) => {
+  try {
+    let token;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+    if (token) {
+      try {
+        const decoded = verifyToken(token);
+        const user = await User.findById(decoded.id);
+        if (user && user.isActive) {
+          req.user = { id: user._id.toString(), role: user.role, name: user.name };
+        }
+      } catch { /* invalid token — continue anonymously */ }
+    }
+    next();
+  } catch {
+    next();
+  }
+};
+
+module.exports = { protect, optionalProtect };

@@ -12,6 +12,7 @@ const { restrictTo } = require("../middleware/roleMiddleware");
 
 router.use(protect);
 
+router.get("/contractors", restrictTo("official", "admin"), getContractors);
 router.get("/", restrictTo("admin"), getAllUsers);
 router.get("/contractors", restrictTo("admin"), getContractors);
 router.patch("/profile", updateProfile);

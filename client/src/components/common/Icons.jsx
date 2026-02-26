@@ -175,6 +175,70 @@ export const TicketIcon = ({ size, className }) => (
   </Icon>
 );
 
+export const BriefcaseIcon = ({ size, className }) => (
+  <Icon size={size} className={className}>
+    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+    <line x1="12" y1="12" x2="12" y2="12.01" />
+  </Icon>
+);
+
+export const GavelIcon = ({ size, className }) => (
+  <Icon size={size} className={className}>
+    <path d="M14 13L20.5 6.5a2.121 2.121 0 0 0-3-3L11 10" />
+    <path d="M4.5 20.5l6-6" />
+    <path d="M3 22l1.5-1.5" />
+    <path d="M14.5 4.5l5 5" />
+    <line x1="3" y1="15" x2="9" y2="21" />
+  </Icon>
+);
+
+export const EyeIcon = ({ size, className }) => (
+  <Icon size={size} className={className}>
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </Icon>
+);
+
+export const PackageIcon = ({ size, className }) => (
+  <Icon size={size} className={className}>
+    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+    <line x1="12" y1="22.08" x2="12" y2="12" />
+  </Icon>
+);
+
+export const ShovelIcon = ({ size, className }) => (
+  <Icon size={size} className={className}>
+    <line x1="3" y1="20" x2="8" y2="15" />
+    <path d="M9.33 9.33L12 12l6-6-3-3-6 6z" />
+    <path d="M14 6l4 4-2 2-4-4z" />
+    <line x1="4" y1="16" x2="8" y2="20" />
+  </Icon>
+);
+
+export const WrenchIcon = ({ size, className }) => (
+  <Icon size={size} className={className}>
+    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+  </Icon>
+);
+
+export const ClipboardCheckIcon = ({ size, className }) => (
+  <Icon size={size} className={className}>
+    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+    <rect x="9" y="3" width="6" height="4" rx="1" ry="1" />
+    <path d="m9 14 2 2 4-4" />
+  </Icon>
+);
+
+export const FlagIcon = ({ size, className }) => (
+  <Icon size={size} className={className}>
+    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+    <line x1="4" y1="22" x2="4" y2="15" />
+  </Icon>
+);
+
 export const SpinnerIcon = ({ size = 20, className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
