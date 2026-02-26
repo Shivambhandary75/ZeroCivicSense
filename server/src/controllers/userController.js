@@ -1,5 +1,18 @@
 const User = require("../models/User");
 
+// @desc  Get all contractors, optionally filtered by department (admin)
+// @route GET /api/users/contractors
+exports.getContractors = async (req, res, next) => {
+  try {
+    const filter = { role: "contractor", isActive: true };
+    if (req.query.department) filter.department = req.query.department;
+    const contractors = await User.find(filter).sort({ name: 1 });
+    res.json(contractors);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // @desc  Get all users (admin)
 // @route GET /api/users
 exports.getAllUsers = async (req, res, next) => {

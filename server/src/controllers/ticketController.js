@@ -194,3 +194,92 @@ exports.deleteTicket = async (req, res, next) => {
     next(err);
   }
 };
+
+// @desc  Assign ticket to contractor (admin)
+// @route PATCH /api/tickets/:id/assign
+exports.assignTicket = async (req, res, next) => {
+  try {
+    const { contractorId } = req.body;
+    const User = require("../models/User");
+    const contractor = await User.findById(contractorId);
+    if (!contractor || contractor.role !== "contractor") {
+      return res.status(400).json({ message: "Invalid contractor." });
+    }
+
+    const ticket = await Ticket.findByIdAndUpdate(
+      req.params.id,
+      { assignedTo: contractorId, status: "in_progress" },
+      { new: true },
+    )
+      .populate("createdBy", "name email")
+      .populate("assignedTo", "name email department");
+
+    if (!ticket) return res.status(404).json({ message: "Ticket not found." });
+
+    await AuditLog.create({
+      userId: req.user.id,
+      action: "ASSIGN_TICKET",
+      resource: "Ticket",
+      resourceId: ticket._id,
+      details: { contractorId },
+    });
+
+    res.json(ticket);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc  Vote / unvote on a ticket (any authenticated user)
+// @route PATCH /api/tickets/:id/vote
+exports.voteTicket = async (req, res, next) => {
+  try {
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) return res.status(404).json({ message: "Ticket not found." });
+
+    const userId = req.user.id;
+    const alreadyVoted = ticket.votes.some((v) => v.toString() === userId);
+
+    if (alreadyVoted) {
+      // Unvote
+      ticket.votes = ticket.votes.filter((v) => v.toString() !== userId);
+    } else {
+      // Vote
+      ticket.votes.push(userId);
+    }
+    ticket.voteCount = ticket.votes.length;
+    await ticket.save();
+
+    res.json({ voteCount: ticket.voteCount, voted: !alreadyVoted });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc  Get public ticket feed - all tickets visible to any logged-in user
+// @route GET /api/tickets/public
+exports.getPublicTickets = async (req, res, next) => {
+  try {
+    const { category, status, page = 1, limit = 30 } = req.query;
+    const filter = {};
+    if (category) filter.category = category;
+    if (status) filter.status = status;
+
+    const tickets = await Ticket.find(filter)
+      .populate("createdBy", "name")
+      .sort({ voteCount: -1, createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    // Annotate whether the current user has voted
+    const userId = req.user.id;
+    const result = tickets.map((t) => ({
+      ...t.toJSON(),
+      userVoted: t.votes.some((v) => v.toString() === userId),
+    }));
+
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};

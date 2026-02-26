@@ -38,6 +38,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    department: {
+      type: String,
+      enum: ["PWD", "Water Works", "Electricity Board", "Sanitation", "Drainage", "Other"],
+      default: "Other",
+    },
+    location: {
+      address: { type: String, default: "" },
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
+    },
   },
   { timestamps: true },
 );
