@@ -17,6 +17,11 @@ server/.env.*
 ai-service/.env
 ai-service/.env.*
 
+# Keep example files tracked
+!client/.env.example
+!server/.env.example
+!ai-service/.env.example
+
 # ── Dependencies ──────────────────────────────────────
 node_modules/
 client/node_modules/

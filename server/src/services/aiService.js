@@ -21,6 +21,11 @@ const analyzeTicket = async (ticketId, hasProof = false) => {
       { upsert: true },
     );
 
+    // Mark AI processing started on ticket when proof is being reviewed
+    if (hasProof) {
+      await Ticket.findByIdAndUpdate(ticketId, { proofAiStatus: "processing" });
+    }
+
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) throw new Error("Ticket not found");
 
@@ -70,6 +75,22 @@ const analyzeTicket = async (ticketId, hasProof = false) => {
       { upsert: true, new: true },
     );
 
+    // Write proof AI results back onto the Ticket so all queries get them without extra joins
+    if (hasProof) {
+      const verdict = aiResult.tamperFlag
+        ? "suspicious"
+        : aiResult.aiScore >= 70
+          ? "authentic"
+          : "inconclusive";
+      await Ticket.findByIdAndUpdate(ticketId, {
+        proofAiStatus: "done",
+        proofAiScore: aiResult.aiScore,
+        proofAiTamper: aiResult.tamperFlag,
+        proofAiProgress: aiResult.progressEstimate,
+        proofAiVerdict: verdict,
+      });
+    }
+
     logger.info(`AI analysis complete for ticket ${ticketId}`);
   } catch (err) {
     logger.error(`AI analysis failed for ticket ${ticketId}: ${err.message}`);
@@ -78,6 +99,9 @@ const analyzeTicket = async (ticketId, hasProof = false) => {
       { status: "failed" },
       { upsert: true },
     );
+    if (hasProof) {
+      await Ticket.findByIdAndUpdate(ticketId, { proofAiStatus: "failed" });
+    }
   }
 };
 
@@ -96,53 +120,54 @@ async function analyzeWorkLog(workLogId, ticket) {
     const workLog = await WorkLog.findById(workLogId);
     if (!workLog) return;
 
-    await WorkLog.findByIdAndUpdate(workLogId, { "aiResult.status": "processing" });
+    await WorkLog.findByIdAndUpdate(workLogId, {
+      "aiResult.status": "processing",
+    });
 
     let aiResult;
 
     try {
       const payload = {
-        ticket_id:  ticket._id.toString(),
-        image_url:  ticket.imageUrl  || null,
-        proof_url:  workLog.proofImageUrl || null,
-        stage:      workLog.stage,
+        ticket_id: ticket._id.toString(),
+        image_url: ticket.imageUrl || null,
+        proof_url: workLog.proofImageUrl || null,
+        stage: workLog.stage,
       };
 
-      const { data } = await axios.post(
-        `${AI_SERVICE_URL}/analyze`,
-        payload,
-        { timeout: 30000 },
-      );
+      const { data } = await axios.post(`${AI_SERVICE_URL}/analyze`, payload, {
+        timeout: 30000,
+      });
 
       aiResult = {
-        aiScore:          data.ai_score,
-        tamperFlag:       data.tamper_flag,
+        aiScore: data.ai_score,
+        tamperFlag: data.tamper_flag,
         progressEstimate: data.progress_estimate,
-        similarityIndex:  data.similarity_index,
-        status:           "done",
-        analyzedAt:       new Date(),
+        similarityIndex: data.similarity_index,
+        status: "done",
+        analyzedAt: new Date(),
       };
     } catch {
       // Fake realistic values — progress increases with later stages
       const STAGE_PROGRESS = {
-        site_inspection: [5,  20],
-        procurement:     [20, 40],
-        groundwork:      [35, 55],
-        active_work:     [50, 75],
-        quality_check:   [70, 88],
-        work_completed:  [88, 100],
+        site_inspection: [5, 20],
+        procurement: [20, 40],
+        groundwork: [35, 55],
+        active_work: [50, 75],
+        quality_check: [70, 88],
+        work_completed: [88, 100],
       };
       const [min, max] = STAGE_PROGRESS[workLog.stage] || [40, 80];
-      const progressEstimate = Math.floor(Math.random() * (max - min + 1)) + min;
+      const progressEstimate =
+        Math.floor(Math.random() * (max - min + 1)) + min;
 
       aiResult = {
-        aiScore:          Math.floor(Math.random() * 25 + 75),   // 75–100
-        tamperFlag:       Math.random() < 0.08,                  // 8% chance
+        aiScore: Math.floor(Math.random() * 25 + 75), // 75–100
+        tamperFlag: Math.random() < 0.08, // 8% chance
         progressEstimate,
-        similarityIndex:  workLog.proofImageUrl
+        similarityIndex: workLog.proofImageUrl
           ? parseFloat((Math.random() * 0.3 + 0.7).toFixed(2))
           : null,
-        status:    "done",
+        status: "done",
         analyzedAt: new Date(),
       };
     }

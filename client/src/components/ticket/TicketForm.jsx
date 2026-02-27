@@ -1,7 +1,8 @@
 import React, { useState, useRef } from "react";
 import Button from "../common/Button";
 import { createTicket } from "../../services/ticketService";
-import { MapPinIcon, UploadIcon } from "../common/Icons";
+import { UploadIcon } from "../common/Icons";
+import LocationPicker from "../map/LocationPicker";
 
 const LABEL_STYLE = { color: "var(--brand)" };
 const INPUT_STYLE = {
@@ -17,7 +18,7 @@ const TicketForm = ({ onSuccess }) => {
     title: "",
     description: "",
     category: "road",
-    location: { lat: "", lng: "" },
+    location: { lat: "", lng: "", address: "" },
   });
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -25,34 +26,17 @@ const TicketForm = ({ onSuccess }) => {
   const [error, setError] = useState("");
   const fileRef = useRef();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "lat" || name === "lng") {
-      setForm((prev) => ({ ...prev, location: { ...prev.location, [name]: value } }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
-    }
-  };
+  const handleChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleLocation = (loc) =>
+    setForm((prev) => ({ ...prev, location: loc }));
 
   const handleImage = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setImage(file);
     setPreview(URL.createObjectURL(file));
-  };
-
-  const handleGeoLocate = () => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) =>
-        setForm((prev) => ({
-          ...prev,
-          location: {
-            lat: pos.coords.latitude.toFixed(6),
-            lng: pos.coords.longitude.toFixed(6),
-          },
-        })),
-      () => setError("Could not fetch location. Please enter manually.")
-    );
   };
 
   const handleSubmit = async (e) => {
@@ -70,6 +54,7 @@ const TicketForm = ({ onSuccess }) => {
       formData.append("category", form.category);
       formData.append("lat", form.location.lat);
       formData.append("lng", form.location.lng);
+      if (form.location.address) formData.append("address", form.location.address);
       if (image) formData.append("image", image);
       await createTicket(formData);
       onSuccess?.();
@@ -140,39 +125,10 @@ const TicketForm = ({ onSuccess }) => {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={LABEL_STYLE}>Latitude *</label>
-          <input
-            name="lat"
-            value={form.location.lat}
-            onChange={handleChange}
-            placeholder="e.g. 18.5204"
-            className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all duration-150"
-            style={INPUT_STYLE}
-            onFocus={INPUT_FOCUS}
-            onBlur={INPUT_BLUR}
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={LABEL_STYLE}>Longitude *</label>
-          <input
-            name="lng"
-            value={form.location.lng}
-            onChange={handleChange}
-            placeholder="e.g. 73.8567"
-            className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all duration-150"
-            style={INPUT_STYLE}
-            onFocus={INPUT_FOCUS}
-            onBlur={INPUT_BLUR}
-          />
-        </div>
+      <div>
+        <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={LABEL_STYLE}>Location *</label>
+        <LocationPicker value={form.location} onChange={handleLocation} />
       </div>
-
-      <Button type="button" variant="outline" onClick={handleGeoLocate} fullWidth>
-        <MapPinIcon size={14} style={{ display: "inline", marginRight: 6 }} />
-        Use My Current Location
-      </Button>
 
       <div>
         <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--brand)" }}>Upload Image</label>

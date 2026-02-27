@@ -30,7 +30,7 @@ const ProtectedRoute = ({ children, roles }) => {
 // ─── Dashboard resolver ─────────────────────────────────────────
 const DashboardPage = () => {
   const { user } = useAuth();
-  if (user?.role === "admin")      return <AdminDashboard />;
+  if (user?.role === "authority")   return <AdminDashboard />;
   if (user?.role === "contractor") return <ContractorDashboard />;
   if (user?.role === "official")   return <OfficialDashboard />;
   return <CitizenDashboard />;

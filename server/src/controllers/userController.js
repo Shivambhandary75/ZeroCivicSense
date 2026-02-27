@@ -4,7 +4,9 @@ const User = require("../models/User");
 // @route GET /api/users/contractors
 exports.getContractors = async (req, res, next) => {
   try {
-    const filter = { role: "contractor", isActive: true };
+    const filter = { role: "contractor" };
+    // If not explicitly requesting inactive, only show active (used by assign modal)
+    if (req.query.includeInactive !== "true") filter.isActive = true;
     if (req.query.department) filter.department = req.query.department;
     const contractors = await User.find(filter).sort({ name: 1 });
     res.json(contractors);
@@ -63,6 +65,22 @@ exports.deactivateUser = async (req, res, next) => {
     );
     if (!user) return res.status(404).json({ message: "User not found." });
     res.json({ message: "User deactivated.", user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc  Reactivate user (admin)
+// @route PATCH /api/users/:id/reactivate
+exports.reactivateUser = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isActive: true },
+      { new: true },
+    );
+    if (!user) return res.status(404).json({ message: "User not found." });
+    res.json({ message: "User reactivated.", user });
   } catch (err) {
     next(err);
   }

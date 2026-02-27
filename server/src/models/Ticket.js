@@ -18,7 +18,14 @@ const ticketSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "in_progress", "completed", "rejected"],
+      // proof_submitted = official uploaded proof, awaiting citizen validation
+      enum: [
+        "pending",
+        "in_progress",
+        "proof_submitted",
+        "completed",
+        "rejected",
+      ],
       default: "pending",
     },
     location: {
@@ -57,25 +64,29 @@ const ticketSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    votes: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    }],
-    voteCount: {
-      type: Number,
-      default: 0,
+    // ── Ticket upvotes (citizen interest signal) ─────────────────────────────
+    votes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    voteCount: { type: Number, default: 0 },
+    // ── Proof validation votes (citizens validate official's work proof) ──────
+    proofUpvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    proofDownvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    proofUpCount: { type: Number, default: 0 },
+    proofDownCount: { type: Number, default: 0 },
+    // ── Rejection reason (required when authority rejects) ───────────────────
+    rejectionReason: { type: String, default: "" },
+    // ── AI review of official's uploaded proof ───────────────────────────────
+    proofAiStatus: {
+      type: String,
+      enum: ["pending", "processing", "done", "failed"],
+      default: "pending",
     },
+    proofAiScore: { type: Number, default: null }, // 0-100
+    proofAiTamper: { type: Boolean, default: false },
+    proofAiProgress: { type: Number, default: null }, // 0-100 work completion %
+    proofAiVerdict: { type: String, default: "" }, // "authentic" | "suspicious" | "inconclusive"
     resolvedAt: {
       type: Date,
       default: null,
-    },
-    votes: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    }],
-    voteCount: {
-      type: Number,
-      default: 0,
     },
   },
   { timestamps: true },

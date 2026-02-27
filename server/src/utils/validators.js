@@ -23,7 +23,7 @@ const registerValidators = [
     .withMessage("Password must be at least 8 characters"),
   body("role")
     .optional()
-    .isIn(["citizen", "admin", "contractor"])
+    .isIn(["citizen", "authority", "contractor", "official"])
     .withMessage("Invalid role"),
 ];
 
