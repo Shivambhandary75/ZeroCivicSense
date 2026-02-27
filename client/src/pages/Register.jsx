@@ -2,13 +2,12 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../services/authService";
 import Button from "../components/common/Button";
-import { MapIcon, UserIcon, BuildingIcon, HardHatIcon, GavelIcon } from "../components/common/Icons";
+import { MapIcon, UserIcon, BuildingIcon, HardHatIcon } from "../components/common/Icons";
 
 const ROLE_OPTIONS = [
-  { value: "citizen",   label: "Citizen",        Icon: UserIcon,     desc: "Report issues in your area" },
-  { value: "official",  label: "Public Official", Icon: GavelIcon,    desc: "Endorse tickets & assign contractors" },
-  { value: "contractor", label: "Contractor",     Icon: HardHatIcon,  desc: "Upload work proof" },
-  { value: "admin",     label: "Admin",           Icon: BuildingIcon, desc: "Manage & approve tickets" },
+  { value: "citizen",    label: "Citizen",              Icon: UserIcon,     desc: "Report issues in your area" },
+  { value: "contractor", label: "Official",  Icon: HardHatIcon,  desc: "Upload work proof & update progress" },
+  { value: "authority", label: "Authority",             Icon: BuildingIcon, desc: "Verify authenticity & manage actors" },
 ];
 
 const Register = () => {
@@ -16,7 +15,7 @@ const Register = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "citizen", department: "" });
 
   const DEPARTMENTS = ["PWD", "Water Works", "Electricity Board", "Sanitation", "Drainage", "Other"];
-  const showDepartment = form.role === "contractor" || form.role === "official";
+  const showDepartment = form.role === "contractor";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -81,7 +80,7 @@ const Register = () => {
               {/* Name */}
               <div>
                 <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--brand)" }}>Full Name</label>
-                <input name="name" value={form.name} onChange={handleChange} placeholder="John Doe"
+                <input name="name" value={form.name} onChange={handleChange} placeholder="your name"
                   className="w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-all duration-150"
                   style={inputStyle}
                   onFocus={(e) => { e.target.style.borderColor = "var(--brand)"; }}
@@ -130,7 +129,7 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Department — only for contractor / official */}
+              {/* Department — only for government officials (contractor role) */}
               {showDepartment && (
                 <div>
                   <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--brand)" }}>Department</label>

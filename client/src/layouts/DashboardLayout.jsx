@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { MapIcon, LogOutIcon, ClipboardIcon, BuildingIcon, HardHatIcon, PlusIcon, GavelIcon } from "../components/common/Icons";
+import { MapIcon, LogOutIcon, ClipboardIcon, BuildingIcon, HardHatIcon, PlusIcon } from "../components/common/Icons";
 
 const NAV_ICONS = {
   "/dashboard":    <ClipboardIcon size={15} />,
@@ -10,9 +10,14 @@ const NAV_ICONS = {
 
 const ROLE_ICONS = {
   citizen:    <ClipboardIcon size={15} />,
-  admin:      <BuildingIcon size={15} />,
+  authority:  <BuildingIcon size={15} />,
   contractor: <HardHatIcon size={15} />,
-  official:   <GavelIcon size={15} />,
+};
+
+const ROLE_LABELS = {
+  citizen:    "Citizen",
+  authority:  "Authority",
+  contractor: "Government Official",
 };
 
 const NAV_LINKS = {
@@ -20,14 +25,11 @@ const NAV_LINKS = {
     { label: "My Tickets",   to: "/dashboard" },
     { label: "Raise Ticket", to: "/raise-ticket" },
   ],
-  admin: [
+  authority: [
     { label: "Overview", to: "/dashboard" },
   ],
   contractor: [
     { label: "My Work", to: "/dashboard" },
-  ],
-  official: [
-    { label: "Tickets",      to: "/dashboard" },
   ],
 };
 
@@ -62,8 +64,8 @@ const DashboardLayout = ({ children }) => {
           style={{ backgroundColor: "var(--brand-light)" }}
         >
           <span style={{ color: "var(--sand)" }}>{ROLE_ICONS[user?.role]}</span>
-          <span className="text-xs font-semibold capitalize" style={{ color: "var(--steel-light)" }}>
-            {user?.role} Panel
+          <span className="text-xs font-semibold" style={{ color: "var(--steel-light)" }}>
+            {ROLE_LABELS[user?.role] ?? user?.role} Panel
           </span>
         </div>
 
@@ -112,8 +114,8 @@ const DashboardLayout = ({ children }) => {
               <p className="text-xs font-semibold truncate" style={{ color: "var(--cream)" }}>
                 {user?.name}
               </p>
-              <p className="text-xs capitalize" style={{ color: "var(--steel)" }}>
-                {user?.role}
+              <p className="text-xs" style={{ color: "var(--steel)" }}>
+                {ROLE_LABELS[user?.role] ?? user?.role}
               </p>
             </div>
           </div>

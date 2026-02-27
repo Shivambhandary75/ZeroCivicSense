@@ -22,7 +22,7 @@ const FEATURES = [
 ];
 
 const STATS = [
-  { value: "3 Roles", label: "Citizen · Admin · Contractor" },
+  { value: "3 Roles", label: "Citizen · Government Official · Authority" },
   { value: "AI-Powered", label: "Tamper Detection + Progress AI" },
   { value: "Real-Time", label: "Live Status Tracking" },
 ];

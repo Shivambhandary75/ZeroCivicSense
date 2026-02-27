@@ -10,11 +10,13 @@ import TicketCard from "../ticket/TicketCard";
 import Loader from "../common/Loader";
 import Button from "../common/Button";
 import Modal from "../common/Modal";
-import { GavelIcon, BriefcaseIcon, ClipboardIcon } from "../common/Icons";
+import { GavelIcon, BriefcaseIcon, ClipboardIcon, MapIcon } from "../common/Icons";
+import TicketMap from "../map/TicketMap";
 
 const TABS = [
   { key: "open", label: "Open Tickets", Icon: ClipboardIcon },
-  { key: "mine", label: "My Endorsed", Icon: GavelIcon },
+  { key: "mine", label: "My Endorsed",  Icon: GavelIcon },
+  { key: "map",  label: "Map View",     Icon: MapIcon },
 ];
 
 const STAT_COLORS = [
@@ -109,7 +111,7 @@ const OfficialDashboard = () => {
     }
   };
 
-  const currentTickets = tab === "open" ? openTickets : myTickets;
+  const currentTickets = tab === "open" ? openTickets : tab === "mine" ? myTickets : [];
 
   return (
     <div className="space-y-6">
@@ -147,22 +149,24 @@ const OfficialDashboard = () => {
           >
             <Icon size={14} />
             {label}
-            <span
-              className="text-xs px-1.5 py-0.5 rounded-full font-bold"
-              style={
-                tab === key
-                  ? { backgroundColor: "var(--brand)", color: "var(--cream)" }
-                  : { backgroundColor: "var(--sand)", color: "var(--steel-dark)" }
-              }
-            >
-              {key === "open" ? openTickets.length : myTickets.length}
-            </span>
+            {key !== "map" && (
+              <span
+                className="text-xs px-1.5 py-0.5 rounded-full font-bold"
+                style={
+                  tab === key
+                    ? { backgroundColor: "var(--brand)", color: "var(--cream)" }
+                    : { backgroundColor: "var(--sand)", color: "var(--steel-dark)" }
+                }
+              >
+                {key === "open" ? openTickets.length : myTickets.length}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {/* Ticket list */}
-      {loading ? (
+      {tab !== "map" && (loading ? (
         <Loader />
       ) : currentTickets.length === 0 ? (
         <div
@@ -216,7 +220,10 @@ const OfficialDashboard = () => {
             </div>
           ))}
         </div>
-      )}
+      ))}
+
+      {/* Map View */}
+      {tab === "map" && <TicketMap height="520px" />}
 
       {/* Pick confirmation modal */}
       <Modal

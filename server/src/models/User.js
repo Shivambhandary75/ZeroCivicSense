@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["citizen", "admin", "contractor", "official"],
+      enum: ["citizen", "authority", "contractor"],
       default: "citizen",
     },
     isActive: {
@@ -40,7 +40,14 @@ const userSchema = new mongoose.Schema(
     },
     department: {
       type: String,
-      enum: ["PWD", "Water Works", "Electricity Board", "Sanitation", "Drainage", "Other"],
+      enum: [
+        "PWD",
+        "Water Works",
+        "Electricity Board",
+        "Sanitation",
+        "Drainage",
+        "Other",
+      ],
       default: "Other",
     },
     location: {

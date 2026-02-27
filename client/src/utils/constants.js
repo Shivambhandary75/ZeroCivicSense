@@ -3,7 +3,7 @@ export const API_URL =
 
 export const ROLES = {
   CITIZEN: "citizen",
-  ADMIN: "admin",
+  AUTHORITY: "authority",
   CONTRACTOR: "contractor",
 };
 

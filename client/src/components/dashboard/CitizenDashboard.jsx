@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { getMyTickets, getPublicTickets, voteTicket } from "../../services/ticketService";
+import { getMyTickets, getPublicTickets, voteTicket, proofVoteTicket } from "../../services/ticketService";
 import TicketCard from "../ticket/TicketCard";
+import { ProofAiReview } from "../ticket/TicketCard";
 import Loader from "../common/Loader";
 import Button from "../common/Button";
 import { ClipboardIcon, PlusIcon, MapPinIcon } from "../common/Icons";
+import TicketMap from "../map/TicketMap";
 import { useNavigate } from "react-router-dom";
 
 const CATEGORIES = ["all", "road", "water", "electricity", "garbage", "drainage", "other"];
@@ -46,6 +48,53 @@ const VoteButton = ({ ticket, onVoted }) => {
   );
 };
 
+// ---------- Proof Vote Bar ----------
+const ProofVoteBar = ({ ticket, onProofVoted }) => {
+  const [loading, setLoading] = useState(false);
+  const [vote, setVote]   = useState(ticket.userProofVote || null);
+  const [ups, setUps]     = useState(ticket.proofUpCount   ?? 0);
+  const [downs, setDowns] = useState(ticket.proofDownCount ?? 0);
+
+  const handleVote = async (dir, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLoading(true);
+    try {
+      const res = await proofVoteTicket(ticket._id, dir);
+      setVote(res.userProofVote);
+      setUps(res.proofUpCount);
+      setDowns(res.proofDownCount);
+      if (onProofVoted) onProofVoted(ticket._id, res);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <span className="text-xs font-semibold" style={{ color: "#7c3aed" }}>Validate proof:</span>
+      <button
+        onClick={(e) => handleVote("up", e)}
+        disabled={loading}
+        className="flex items-center gap-1 px-2 py-1 rounded-full border transition-all"
+        style={vote === "up"
+          ? { backgroundColor: "#7c3aed", color: "#fff", borderColor: "#7c3aed" }
+          : { backgroundColor: "transparent", color: "#7c3aed", borderColor: "#c4b5fd" }}>
+        Yes ({ups})
+      </button>
+      <button
+        onClick={(e) => handleVote("down", e)}
+        disabled={loading}
+        className="flex items-center gap-1 px-2 py-1 rounded-full border transition-all"
+        style={vote === "down"
+          ? { backgroundColor: "#dc2626", color: "#fff", borderColor: "#dc2626" }
+          : { backgroundColor: "transparent", color: "#dc2626", borderColor: "#fca5a5" }}>
+      No ({downs})
+      </button>
+    </div>
+  );
+};
+
 // ---------- Community Board ----------
 const CommunityBoard = () => {
   const [tickets, setTickets] = useState([]);
@@ -66,6 +115,16 @@ const CommunityBoard = () => {
     setTickets((prev) =>
       prev.map((t) =>
         t._id === ticketId ? { ...t, voteCount: res.voteCount, userVoted: res.voted } : t,
+      ),
+    );
+  };
+
+  const handleProofVoteUpdate = (ticketId, res) => {
+    setTickets((prev) =>
+      prev.map((t) =>
+        t._id === ticketId
+          ? { ...t, userProofVote: res.userProofVote, proofUpCount: res.proofUpCount, proofDownCount: res.proofDownCount }
+          : t,
       ),
     );
   };
@@ -95,6 +154,20 @@ const CommunityBoard = () => {
           {tickets.map((ticket) => (
             <div key={ticket._id}>
               <TicketCard ticket={ticket} />
+              {/* Proof image */}
+              {ticket.proofImageUrl && (
+                <div className="mt-2">
+                  <p className="text-xs font-semibold mb-1 px-1" style={{ color: "#7c3aed" }}>Work Proof</p>
+                  <img
+                    src={ticket.proofImageUrl}
+                    alt="Work proof"
+                    onClick={() => window.open(ticket.proofImageUrl, "_blank")}
+                    style={{ width: "100%", borderRadius: 8, maxHeight: 140, objectFit: "cover", cursor: "pointer" }}
+                  />
+                </div>
+              )}
+              {/* AI proof review */}
+              {ticket.proofImageUrl && <div className="mt-1"><ProofAiReview ticket={ticket} /></div>}
               <div className="flex items-center justify-between mt-2 px-1">
                 <div className="flex items-center gap-1 text-xs" style={{ color: "var(--steel-dark)" }}>
                   <MapPinIcon size={11} />
@@ -102,6 +175,11 @@ const CommunityBoard = () => {
                 </div>
                 <VoteButton ticket={ticket} onVoted={handleVoteUpdate} />
               </div>
+              {ticket.status === "proof_submitted" && (
+                <div className="mt-2 px-1">
+                  <ProofVoteBar ticket={ticket} onProofVoted={handleProofVoteUpdate} />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -138,7 +216,7 @@ const CitizenDashboard = () => {
 
       {/* Tab switcher */}
       <div className="flex gap-3 border-b" style={{ borderColor: "var(--sand-dark)" }}>
-        {[["my", "My Tickets"], ["community", "Community Board"]].map(([key, label]) => (
+        {[["my", "My Tickets"], ["community", "Community Board"], ["map", "Map View"]].map(([key, label]) => (
           <button key={key} onClick={() => setActiveTab(key)}
             className="pb-2 text-sm font-semibold transition-all border-b-2"
             style={activeTab === key
@@ -180,6 +258,9 @@ const CitizenDashboard = () => {
 
       {/* Community Board tab */}
       {activeTab === "community" && <CommunityBoard />}
+
+      {/* Map View tab */}
+      {activeTab === "map" && <TicketMap height="520px" />}
     </div>
   );
 };
